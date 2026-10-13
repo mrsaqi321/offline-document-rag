@@ -1,0 +1,24 @@
+services:
+  api:
+    build: .
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - ./chroma_db:/app/chroma_db
+    environment:
+      - MODEL_ID=Qwen/Qwen2.5-0.5B-Instruct
+      - EMBEDDING_MODEL=all-MiniLM-L6-v2
+
+  streamlit:
+    build: .
+    command: streamlit run app.py --server.address 0.0.0.0 --server.port 8501
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
+    environment:
+      - BACKEND_URL=http://api:8000
+    volumes:
+      - .:/app
